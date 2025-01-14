@@ -1,0 +1,55 @@
+/* 기본 스타일 */
+@charset "UTF-8";
+
+body {
+    background-color: #f4f7fa;
+    font-family: Arial, sans-serif;
+}
+
+/* 카드 스타일 */
+.card {
+    margin-bottom: 15px;
+}
+
+.card-header {
+    background-color: #007bff;
+    color: white;
+}
+
+.card-body {
+    background-color: #ffffff;
+    padding: 15px;
+}
+
+/* 버튼 스타일 */
+.btn-create {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-create:hover {
+    background-color: #0056b3;
+}
+
+/* 네비게이션 바 */
+.navbar {
+    margin-bottom: 20px;
+}
+
+/* 게시판 페이지 스타일 */
+.container.board-container {
+    max-width: 1000px; /* 게시판의 최대 너비를 더 넓게 설정 */
+    margin-top: 50px;
+}
+
+/* 로그인, 회원가입 페이지 스타일 */
+body .container.login-container {
+    max-width: 400px; /* 최대 너비 설정 */
+    margin: 0 auto;   /* 가운데 정렬 */
+    padding: 15px;     /* 여백 추가 */
+}
+
+/* 인풋 박스와 버튼을 가로폭 100%로 설정 */
+.form-group input, .btn {
+    width: 100%;
+}

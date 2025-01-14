@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>PeachMind - 게시판</title>
+	<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+	<link href="/css/common.css" rel="stylesheet">
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+	<!-- 네비게이션 바 참조 -->
+	<div th:replace="~{peachmind/common/header :: navbar}"></div>
+
+	<div class="container board-container mt-5">
+		<!-- <h2 class="text-center">PeachMind</h2> -->
+		<h4 class="text-center mb-4">게시판</h4>
+
+		<br> <br>
+
+		<!-- 한 줄 목록으로 글번호, 제목, 작성일, 삭제 버튼 -->
+		<div class="row mb-3">
+			<div class="col-1">
+				<strong>No</strong>
+			</div>
+			<div class="col-1">
+				<strong>ID</strong>
+			</div>
+			<div class="col-6">
+				<strong>제목</strong>
+			</div>
+			<div class="col-1">
+				<strong>작성자</strong>
+			</div>
+			<div class="col-2">
+				<strong>작성일</strong>
+			</div>
+			<div class="col-1">
+				<strong>삭제</strong>
+			</div>
+			<!-- 삭제 컬럼 추가 -->
+		</div>
+
+		<div th:each="post, iterStat : ${posts}">
+			<!-- 게시글 정보 (첫 번째 줄) -->
+			<div class="row mb-2">
+				<div class="col-1" th:text="${iterStat.count}"></div>
+				<div class="col-1" th:text="${post.id}"></div>
+				
+				<div class="col-6">
+					<a th:href="@{'/peachmind/board/post/' + ${post.id}}"
+						th:text="${post.title}"></a>
+						<!-- 첨부파일 아이콘 표시 -->
+					    <span th:if="${post.attachments != null && post.attachments.size() > 0}" class="ml-2">
+					        <i class="fas fa-paperclip"></i> <!-- 파일 아이콘 -->
+					    </span>
+				</div>
+				
+				<div class="col-1" th:text="${post.author}"></div>
+				<div class="col-2"
+					th:text="${#temporals.format(post.createdDate, 'yy.MM.dd HH:mm')}"></div>
+					
+				<div class="col-1 text-center">
+					
+					<a href="#" class="btn btn-danger btn-sm"
+				        th:if="${post.author == currentUsername}"
+				        th:href="@{'/peachmind/board/delete/' + ${post.id}}"
+				        onclick="return confirm('게시글을 삭제하시겠습니까?');">X</a>
+						
+				</div>
+				
+			</div>
+		</div>
+
+		<!-- 게시글이 없을 경우 -->
+		<div class="row" th:if="${posts == null || posts.empty}">
+			<div class="col-12">
+				<p class="text-center">게시글이 없습니다. 글을 작성해보세요!</p>
+			</div>
+		</div>
+
+		<!-- 페이지 네비게이션 -->
+		<div class="pagination justify-content-center mt-4">
+			<ul class="pagination">
+				<!-- 첫 번째 페이지로 이동 -->
+				<li class="page-item"
+					th:classappend="${currentPage == null || currentPage == 0} ? 'disabled' : ''">
+					<a class="page-link" th:href="@{'/peachmind/board?page=' + 0}" aria-label="First">
+						<span aria-hidden="true">&laquo;</span>
+					</a>
+				</li>
+
+				<!-- 이전 페이지로 이동 -->
+				<li class="page-item"
+					th:classappend="${currentPage == null || currentPage == 0} ? 'disabled' : ''">
+					<a class="page-link" th:href="@{|/peachmind/board?page=${currentPage == 0 ? 0 : currentPage - 1}|}"
+						aria-label="Previous">
+						<span aria-hidden="true">&lt;</span>
+					</a>
+				</li>
+
+				<!-- 페이지 번호 -->
+				<li class="page-item"
+					th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+					th:classappend="${i == (currentPage == null ? 0 : currentPage)} ? 'active' : ''">
+					<a class="page-link" th:href="@{'/peachmind/board?page=' + ${i}}" th:text="${i + 1}"></a>
+				</li>
+
+				<!-- 다음 페이지로 이동 -->
+				<li class="page-item"
+					th:classappend="${currentPage == null || currentPage == totalPages - 1} ? 'disabled' : ''">
+					<a class="page-link" th:href="@{|/peachmind/board?page=${currentPage + 1}|}"
+						aria-label="Next">
+						<span aria-hidden="true">&gt;</span>
+					</a>
+				</li>
+
+				<!-- 마지막 페이지로 이동 -->
+				<li class="page-item"
+					th:classappend="${currentPage == null || currentPage == totalPages - 1} ? 'disabled' : ''">
+					<a class="page-link" th:href="@{'/peachmind/board?page=' + ${totalPages - 1}}" aria-label="Last">
+						<span aria-hidden="true">&raquo;</span>
+					</a>
+				</li>
+			</ul>
+		</div>
+
+		<div class="d-flex justify-content-between mb-3">
+			<!-- 글 작성 버튼 -->
+			<a th:href="@{/peachmind/board/write}" class="btn btn-success btn-sm">글 작성</a>
+		</div>
+	</div>
+</body>
+</html>

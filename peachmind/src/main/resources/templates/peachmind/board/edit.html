@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PeachMind - 글 수정</title>
+<link
+	href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+	rel="stylesheet">
+<link href="/css/common.css" rel="stylesheet">
+</head>
+<body>
+	<!-- 네비게이션 바 -->
+	<div th:replace="peachmind/common/header :: navbar"></div>
+
+	<div class="container board-container mt-5">
+		<h2 class="text-center">PeachMind</h2>
+		<h4 class="text-center mb-4">글 수정</h4>
+
+		<form th:action="@{/peachmind/board/edit/{id}(id=${post.id})}"
+			method="post" enctype="multipart/form-data">
+			<!-- 제목 -->
+			<div class="form-group">
+				<label for="title">제목</label> <input type="text"
+					class="form-control" id="title" name="title"
+					th:value="${post.title}" required>
+			</div>
+
+			<!-- 내용 -->
+			<div class="form-group">
+				<label for="content">내용</label>
+				<textarea class="form-control" id="content" name="content" rows="10"
+					th:text="${post.content}" required></textarea>
+			</div>
+
+			<!-- 첨부파일 -->
+			<div class="form-group">
+				<label>첨부파일</label>
+				<ul>
+					<li th:each="file : ${post.attachments}">
+						<div th:if="${#strings.contains(file.fileType, 'image')}">
+							<img th:src="@{'/peachmind/files/' + ${file.fileName}}"
+								th:alt="${file.fileName}" class="img-thumbnail"
+								style="max-width: 200px; max-height: 200px;">
+						</div>
+						<div th:if="${!#strings.contains(file.fileType, 'image')}">
+							<a th:href="@{'/peachmind/files/download/' + ${file.id}}"
+								th:text="${file.fileName}"></a>
+						</div>
+						<button type="button" class="btn btn-danger btn-sm"
+							th:onclick="|removeFile('${file.id}')|">삭제</button>
+					</li>
+				</ul>
+				<input type="file" class="form-control-file mt-2" id="file"
+					name="file">
+			</div>
+
+			<!-- 버튼 -->
+			<div class="form-group text-right">
+				<button type="submit" class="btn btn-primary btn-sm mr-2">수정</button>
+				<button type="button" class="btn btn-secondary btn-sm"
+					th:onclick="|window.location.href='@{/peachmind/board}'|">취소</button>
+			</div>
+		</form>
+	</div>
+
+	<script>
+        /* function removeFile(fileId) {
+            if (confirm('파일을 삭제하시겠습니까?')) {
+                fetch(`/peachmind/files/delete/${fileId}`, { method: 'DELETE' })
+                    .then(response => {
+                        if (response.ok) {
+                            location.reload();
+                        } else {
+                            alert('파일 삭제에 실패했습니다.');
+                        }
+                    });
+            }
+        } */
+        
+        function removeFile(fileId) {
+            if (confirm('파일을 삭제하시겠습니까?')) {
+                fetch(`/peachmind/board/files/delete/${fileId}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json()) // 응답을 JSON으로 처리
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert('파일이 삭제되었습니다.');
+                        location.reload();  // 페이지 새로 고침
+                    } else {
+                        alert(data.message || '파일 삭제에 실패했습니다.');
+                    }
+                })
+                .catch(error => alert('파일 삭제 중 오류가 발생했습니다.'));
+            }
+        }
+        
+    </script>
+</body>
+</html>

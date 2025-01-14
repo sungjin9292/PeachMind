@@ -1,0 +1,61 @@
+// 플러그인 적용
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.4.1'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+// 프로젝트 속성
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+
+// 자바버전 설정
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+// 의존성 구성
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+// 저장소 설정
+repositories {
+	mavenCentral()
+}
+
+// 의존성 주입
+dependencies {
+	// 데이터베이스 연동
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	// 타임리프 템플릿엔진
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	// 웹 애플리케이션 개발환경
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	// Spring Security 사용
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    // H2 데이터베이스 연동
+	runtimeOnly 'com.h2database:h2'
+	// Lombok 사용
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'	
+	// 스프링 부트 테스트
+    testImplementation 'org.springframework.boot:spring-boot-starter-test' 
+}
+
+// 테스트 태스크
+tasks.named('test') {
+	useJUnitPlatform()	
+}
+
+// 컴파일 태스크
+tasks.withType(JavaCompile) {
+    options.fork = true
+    // 메서드 파라미터 이름을 유지 설정
+    //options.forkOptions.jvmArgs += ['-parameters']  // 에러 발생 주석처리
+}
+

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>게시글 상세</title>
+<link
+	href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+	rel="stylesheet">
+<link href="/css/common.css" rel="stylesheet">
+
+<script>
+	// 답글 작성 폼을 토글하는 함수
+	function toggleReplyForm(commentId) {
+		var form = document.getElementById('replyForm-' + commentId);
+		if (form) {
+			form.style.display = form.style.display === 'none' ? 'block' : 'none';
+		}
+	}
+</script>
+
+</head>
+<body>
+	<!-- 네비게이션 바 -->
+	<div th:replace="~{peachmind/common/header :: navbar}"></div>
+
+	<div class="container mt-5">
+		<!-- 게시글 상세 내용 -->
+		<div class="card mt-4">
+			<div class="card-header">
+				<h3 th:text="${post.title}">게시글 제목</h3>
+			</div>
+			<div class="card-body">
+				<p>
+					<strong>작성일:</strong> <span
+						th:text="${#temporals.format(post.createdDate, 'yyyy-MM-dd HH:mm')}">2025-01-09</span>
+				</p>
+				<p>
+					<strong>작성자:</strong> <span th:text="${post.author}">작성자 이름</span>
+				</p>
+				<hr>
+				<p th:text="${post.content}">게시글 내용</p>
+			</div>
+
+			<br>
+
+			<div class="card-body">
+				<p>
+					<strong>첨부파일</strong>
+				</p>
+				<!-- 첨부파일이 있을 때 -->
+				<div th:if="${post.attachments}">
+					<ul>
+						<li th:each="file : ${post.attachments}">
+							<!-- 이미지 파일일 경우 -->
+							<div th:if="${#strings.contains(file.fileType, 'image')}">
+								<img th:src="@{'/peachmind/files/' + ${file.fileName}}"
+									th:alt="${file.fileName}" class="img-thumbnail"
+									style="max-width: 200px; max-height: 200px;">
+							</div> <!-- 이미지가 아닌 경우 -->
+							<div th:if="${!#strings.contains(file.fileType, 'image')}">
+								<a th:href="@{'/peachmind/files/download/' + ${file.id}}"
+									th:text="${file.fileName}">첨부파일</a> <span> (타입: <span
+									th:text="${file.fileType}">파일 타입</span>, 크기: <span
+									th:text="${file.fileSize}">파일 크기</span> bytes)
+								</span>
+							</div>
+						</li>
+					</ul>
+				</div>
+				<!-- 첨부파일이 없을 때 -->
+				<div th:if="${post.attachments.empty}">
+					<p>첨부파일이 없습니다.</p>
+				</div>
+			</div>
+		</div>
+
+		<!-- 댓글 목록 -->
+		<div class="card mt-4">
+			<div class="card-header">
+				<h5>댓글 목록</h5>
+			</div>
+			<div class="card-body">
+				<div th:if="${post.comments != null and !post.comments.isEmpty()}">
+					<div th:each="comment : ${post.comments}">
+						<!-- 부모 댓글만 표시 -->
+						<div th:if="${comment.parentComment == null}">
+							<div class="border-bottom pb-3 mb-3">
+								<div class="comment-header">
+									<p>
+										<strong th:text="${comment.author}">작성자</strong> <span
+											th:text="${#temporals.format(comment.createdDate, 'yyyy-MM-dd HH:mm')}">2025-01-09</span>
+									</p>
+									<!-- 댓글 작성자에게만 삭제 버튼 표시 -->
+									<a
+										th:href="@{'/peachmind/board/post/' + ${post.id} + '/comment/delete/' + ${comment.id}}"
+										th:if="${comment.author == currentUsername}"
+										class="btn btn-danger btn-sm"
+										onclick="return confirm('댓글을 삭제하시겠습니까?');">삭제</a>
+								</div>
+								<p th:text="${comment.content}">댓글 내용</p>
+
+								<!-- 답글 버튼 -->
+								<button class="btn btn-info btn-sm"
+									th:attr="onclick='toggleReplyForm(' + ${comment.id} + ')'">답글</button>
+
+								<!-- 답글 작성 폼 (토글로 숨기기) -->
+								<div th:id="'replyForm-' + ${comment.id}" style="display: none;">
+									<form
+										th:action="@{'/peachmind/board/post/' + ${post.id} + '/comment/reply/' + ${comment.id}}"
+										method="post">
+										<div class="form-group mt-2">
+											<textarea name="content" class="form-control" rows="3"
+												required></textarea>
+										</div>
+										<button type="submit" class="btn btn-primary">답글 작성</button>
+									</form>
+								</div>
+
+								<!-- 자식 댓글(답글) 리스트 출력 -->
+								<ul>
+									<li th:each="reply : ${comment.replies}">
+										<div class="ml-4">
+											<p>
+												<strong th:text="${reply.author}">답글 작성자</strong>: <span
+													th:text="${reply.content}">답글 내용</span>
+											</p>
+										</div>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div th:if="${post.comments == null or post.comments.empty()}">
+					<p>댓글이 없습니다.</p>
+				</div>
+			</div>
+		</div>
+
+		<!-- 댓글 작성 폼 -->
+		<div class="card mt-4">
+			<div class="card-header">
+				<h5>댓글 작성</h5>
+			</div>
+			<div class="card-body">
+				<form
+					th:action="@{'/peachmind/board/post/' + ${post.id} + '/comment'}"
+					method="post">
+					<div class="form-group">
+						<label for="commentContent">댓글 내용</label>
+						<textarea id="commentContent" name="content" class="form-control"
+							rows="3" required></textarea>
+					</div>
+					<button type="submit" class="btn btn-primary">댓글 작성</button>
+				</form>
+			</div>
+		</div>
+
+		<!-- 버튼들 -->
+		<div class="btn-container mt-3">
+			<a th:href="@{'/peachmind/board/edit/' + ${post.id}}"
+				th:if="${post.author == currentUsername}" class="btn btn-primary">수정</a>
+			<a th:href="@{'/peachmind/board/delete/' + ${post.id}}"
+				th:if="${post.author == currentUsername}" class="btn btn-danger"
+				onclick="return confirm('삭제하시겠습니까?');">삭제</a> <a
+				th:href="@{/peachmind/board}" class="btn btn-secondary">뒤로가기</a>
+		</div>
+
+		<br> <br>
+	</div>
+</body>
+</html>

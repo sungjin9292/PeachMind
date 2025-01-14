@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PeachMind - 글 작성</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/common.css" rel="stylesheet">
+</head>
+<body>
+    <!-- 네비게이션 바 참조 -->
+    <div th:replace="peachmind/common/header :: navbar"></div>
+
+    <!-- 본문 -->
+    <div class="container board-container mt-5">
+        <h2 class="text-center">PeachMind</h2>
+        <h4 class="text-center mb-4">글 작성</h4>
+
+        <form th:action="@{/peachmind/board/write}" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="title">제목</label>
+                <input type="text" class="form-control" id="title" name="title" required>
+            </div>
+
+            <div class="form-group">
+                <label for="content">내용</label>
+                <textarea class="form-control" id="content" name="content" rows="10" required></textarea>
+            </div>
+
+            <!-- 첨부파일 추가 -->
+            <div class="form-group">
+                <label for="file">첨부파일</label>
+                <input type="file" class="form-control-file" id="file" name="file">
+            </div>
+
+            <div class="form-group text-right">
+                <button type="submit" class="btn btn-primary btn-sm mr-2">작성</button>
+                <button type="button" class="btn btn-secondary btn-sm" th:onclick="|window.location.href='@{/peachmind/board}'|">취소</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
